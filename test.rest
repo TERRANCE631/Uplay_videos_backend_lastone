@@ -1,0 +1,8 @@
+###
+post http://localhost:9000/uplay/signIn
+content-type: application/json
+
+{
+    "username": "asdasdads",
+    "password": "dasdasads@"
+}
