@@ -1,16 +1,22 @@
 import jwt from "jsonwebtoken";
 
 export const GenerateToken = (userID, res) => {
-    const token = jwt.sign({ userID }, process.env.HIDDEN_VALUE, {
-        expiresIn: "7d"
-    });
+    const secret = process.env.HIDDEN_VALUE;
+
+    if (!secret) {
+        throw new Error(
+            "JWT secret is not defined. Please set HIDDEN_VALUE in your .env file."
+        );
+    }
+
+    const token = jwt.sign({ userID }, secret, { expiresIn: "7d" });
 
     res.cookie("token", token, {
-        maxAge: 1000 * 60 * 60 * 24 * 7,
+        maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
         httpOnly: true,
         sameSite: "strict",
-        // secure: process.env.NODE_ENV !== "develpment"
+        secure: process.env.NODE_ENV !== "development",
     });
-    
+
     return token;
 };
