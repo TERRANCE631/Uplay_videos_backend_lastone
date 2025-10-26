@@ -11,7 +11,8 @@ export const GenerateToken = (userID, res) => {
     res.cookie("token", token, {
         maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
         httpOnly: true,
-        sameSite: "strict",
+        sameSite: "none", // must be "none" for cross-site requests
+        secure: true      // must be true on HTTPS (Render & Netlify are HTTPS)
         // secure: process.env.NODE_ENV === "production",
     });
 
