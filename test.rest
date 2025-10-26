@@ -10,5 +10,5 @@ content-type: application/json
     "username": "asdasdads",
     "password": "dasdasads@",
     "email": "yse",
-    "profile_image": "asdasdasd"
+    "profile_image": "asdasdasd..."
 }
