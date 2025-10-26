@@ -1,17 +1,26 @@
 import multer from "multer";
+import fs from "fs";
 
 const storage = multer.diskStorage({
-    destination: function (req, res, cb) {
-        cb(null, "public/images")
-    },
+  destination: function (req, file, cb) {
+    const dir = "public/images";
 
-    filename: function (req, file, cb) {
-        let date = new Date();
-        let profile_photo = date.getTime() + "_" + file.originalname;
-        req.body.profile_photo = profile_photo;
-        cb(null, profile_photo);
+    // ✅ Ensure the folder exists
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
     }
+
+    cb(null, dir);
+  },
+
+  filename: function (req, file, cb) {
+    const date = new Date();
+    const profile_photo = date.getTime() + "_" + file.originalname;
+    req.body.profile_photo = profile_photo;
+    cb(null, profile_photo);
+  },
 });
-const subsUpload = multer({ storage: storage });
+
+const subsUpload = multer({ storage });
 
 export default subsUpload;

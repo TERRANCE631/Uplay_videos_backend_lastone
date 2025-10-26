@@ -1,17 +1,26 @@
 import multer from "multer";
+import fs from "fs";
 
 const storage = multer.diskStorage({
-    destination: function (req, res, cb) {
-        cb(null, "public/videos")
-    },
+  destination: function (req, file, cb) {
+    const dir = "public/videos";
 
-    filename: function (req, file, cb) {
-        let date = new Date();
-        let video = date.getTime() + "_" + file.originalname;
-        req.body.video = video;
-        cb(null, video);
+    // ✅ Check and create the directory if it doesn't exist
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
     }
+
+    cb(null, dir);
+  },
+
+  filename: function (req, file, cb) {
+    const date = new Date();
+    const video = date.getTime() + "_" + file.originalname;
+    req.body.video = video;
+    cb(null, video);
+  },
 });
-const uploadVideo = multer({ storage: storage });
+
+const uploadVideo = multer({ storage });
 
 export default uploadVideo;
