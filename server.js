@@ -10,19 +10,13 @@ dotenv.config();
 const server = express();
 const middlewares = jsonserver.defaults();
 
-// #Middlewere's Region
+// #Middlewere's
 server.use(express.json());
 server.use(cors({
-    origin: "http://localhost:3000", // frontend
+    origin:  ["http://localhost:3000", "https://uplayvideos.netlify.app"], // frontend
     credentials: true
 }));
 server.use(cookieParser());
-
-server.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*')
-    res.header('Access-Control-Allow-Headers', '*')
-    next()
-})
 
 server.use(express.urlencoded({ extended: false }))
 server.use(middlewares);
