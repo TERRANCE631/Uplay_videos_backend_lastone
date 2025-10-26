@@ -9,6 +9,7 @@ dotenv.config();
 
 const server = express();
 const middlewares = jsonserver.defaults();
+console.log("JWT secret:", process.env.HIDDEN_VALUE);
 
 // #Middlewere's Region
 server.use(express.json());

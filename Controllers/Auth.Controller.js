@@ -58,16 +58,22 @@ export const Register = async (req, res) => {
             req.body.email = req.body.email.trim(),
             req.body.password = bcrypt.hashSync(req.body.password.trim(), salt),
             req.body.profile_image = `${req.protocol}://${req.get("host")}/images/${req.body.profile_image}`,
-            req.body.token = jwt.sign({ userID }, process.env.HIDDEN_VALUE, { expiresIn: "7d" }),
+            req.body.token = "",
             req.body.id = userID
         ];
         console.log(req.body);
 
         db.query(mysqlCreateTable);
         db.query(mysqlQuery, [values], (err, data) => {
-            if (err) return res.status(500).json("Error occured on 👉👉register mysqlQuery" + " | " + err)
-            GenerateToken(userID, res);
-            res.json({ registered: `You are successfully registered!` });
+            if (err) return res.status(500).json("Error in register mysqlQuery | " + err);
+
+            // generate token after insertion
+            const token = GenerateToken(userID, res);
+
+            // optionally, update user record with token in database
+            db.query("UPDATE users SET token = ? WHERE id = ?", [token, userID]);
+
+            res.json({ registered: "You are successfully registered!", token });
         });
 
     } catch (error) {
