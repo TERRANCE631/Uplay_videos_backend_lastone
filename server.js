@@ -17,8 +17,6 @@ server.use(cors({
     credentials: true
 }));
 server.use(cookieParser());
-app.use("/images", express.static("public/images"));
-app.use("/videos", express.static("public/videos"));
 
 server.use(express.urlencoded({ extended: false }))
 server.use(middlewares);
