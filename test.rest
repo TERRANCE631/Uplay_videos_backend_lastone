@@ -1,8 +1,14 @@
 ###
-post http://localhost:9000/uplay/signIn
+get http://localhost:9900/uplay/checkAuth
+content-type: application/json
+
+###
+post http://localhost:9900/uplay/register
 content-type: application/json
 
 {
     "username": "asdasdads",
-    "password": "dasdasads@"
+    "password": "dasdasads@",
+    "email": "yse",
+    "profile_image": "asdasdasd"
 }

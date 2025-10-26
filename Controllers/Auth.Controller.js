@@ -18,9 +18,12 @@ export const getUsersById = (req, res) => {
 
 export const checkAuth = (req, res) => {
     try {
+        const mysqlCreateTable = "CREATE TABLE IF NOT EXISTS users (username VARCHAR(200), email VARCHAR(200), password VARCHAR(200), profile_image VARCHAR(300), token VARCHAR(300), id INT PRIMARY KEY AUTO_INCREMENT )";
         const mysqlQuery = `SELECT * FROM users`;
-        {
-            req.userToken !== undefined && db.query(mysqlQuery, (err, authUser) => {
+
+        if (req.userToken) {
+            db.query(mysqlCreateTable);
+            db.query(mysqlQuery, (err, authUser) => {
                 if (err) return res.status(404).json("Error occured on 👉👉checkAuth request", + " | " + err);
                 const findUser = authUser.find((user) => user.id === req.userToken)
                 res.status(202).json(findUser)
@@ -58,6 +61,7 @@ export const Register = async (req, res) => {
             req.body.token = jwt.sign({ userID }, process.env.HIDDEN_VALUE, { expiresIn: "7d" }),
             req.body.id = userID
         ];
+        console.log(req.body);
 
         db.query(mysqlCreateTable);
         db.query(mysqlQuery, [values], (err, data) => {
@@ -65,7 +69,6 @@ export const Register = async (req, res) => {
             GenerateToken(userID, res);
             res.json({ registered: `You are successfully registered!` });
         });
-        console.log(req.body);
 
     } catch (error) {
         res.status(500).json("Error occured on 👉👉register request" + " | " + error);
