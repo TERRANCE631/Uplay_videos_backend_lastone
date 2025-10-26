@@ -13,10 +13,14 @@ const middlewares = jsonserver.defaults();
 // #Middlewere's
 server.use(express.json());
 server.use(cors({
-    origin:  ["http://localhost:3000", "https://uplayvideos.netlify.app"], // frontend
+    origin: ["http://localhost:3000", "https://uplayvideos.netlify.app"], // frontend
     credentials: true
 }));
 server.use(cookieParser());
+// --- Serve images ---
+server.use("/images", express.static("public/images"));
+// --- Serve videos ---
+server.use("/videos", express.static("public/videos"));
 
 server.use(express.urlencoded({ extended: false }))
 server.use(middlewares);
