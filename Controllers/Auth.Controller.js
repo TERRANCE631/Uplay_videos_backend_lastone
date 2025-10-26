@@ -32,12 +32,15 @@ export const checkAuth = (req, res) => {
 
 export const logout = (req, res) => {
     try {
-        res.cookie("token", "", { maxAge: 0 })
+        res.clearCookie("token", {
+            httpOnly: true,
+            sameSite: "strict",
+            // secure: process.env.NODE_ENV === "production" // enable if using HTTPS in production
+        });
         res.status(200).json({ message: "You have successfully logged out" });
-
     } catch (error) {
-        res.status(500).json("Error in 👉logout controller" + " | Error " + error.message);
-    };
+        res.status(500).json("Error in 👉logout controller | Error " + error.message);
+    }
 };
 
 // admin section
