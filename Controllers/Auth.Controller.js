@@ -1,6 +1,5 @@
 import { db } from "../db/db.js";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import { GenerateToken } from "../Token/GenerateToken.js";
 
 // starting user's profile section
@@ -18,21 +17,17 @@ export const getUsersById = (req, res) => {
 
 export const checkAuth = (req, res) => {
     try {
-        const mysqlCreateTable = "CREATE TABLE IF NOT EXISTS users (username VARCHAR(200), email VARCHAR(200), password VARCHAR(200), profile_image VARCHAR(300), token VARCHAR(300), id INT PRIMARY KEY AUTO_INCREMENT )";
-        const mysqlQuery = `SELECT * FROM users`;
+        const mysqlQuery = "SELECT * FROM users WHERE id = ?";
+        db.query(mysqlQuery, [req.userToken], (err, results) => {
+            if (err) return res.status(500).json("checkAuth query error | " + err);
+            if (!results.length) return res.status(404).json("User not found");
 
-        if (req.userToken) {
-            db.query(mysqlCreateTable);
-            db.query(mysqlQuery, (err, authUser) => {
-                if (err) return res.status(404).json("Error occured on 👉👉checkAuth request", + " | " + err);
-                const findUser = authUser.find((user) => user.id === req.userToken)
-                res.status(202).json(findUser)
-            })
-        };
+            res.status(200).json(results[0]); // return the user object
+        });
     } catch (error) {
-        res.status(500).json("Error occured on 👉👉checkAuth request", + " | " + error);
-        console.log("Error occured on 👉👉checkAuth request", + " | " + error);
-    };
+        console.log("checkAuth error:", error);
+        res.status(500).json("checkAuth request error | " + error);
+    }
 };
 
 export const logout = (req, res) => {
@@ -48,31 +43,46 @@ export const logout = (req, res) => {
 // admin section
 export const Register = async (req, res) => {
     try {
-        const mysqlQuery = "INSERT INTO users (`username`, `email`, `password`, `profile_image`, `token`, `id`) VALUES (?)";
-        const mysqlCreateTable = "CREATE TABLE IF NOT EXISTS users (username VARCHAR(200), email VARCHAR(200), password VARCHAR(200), profile_image VARCHAR(300), token VARCHAR(300), id INT PRIMARY KEY AUTO_INCREMENT )";
-
-        const userID = Math.floor(Math.random() * 1000000000)
-        const salt = bcrypt.genSaltSync(10);
-        const values = [
-            req.body.username = req.body.username.trim(),
-            req.body.email = req.body.email.trim(),
-            req.body.password = bcrypt.hashSync(req.body.password.trim(), salt),
-            req.body.profile_image = `${req.protocol}://${req.get("host")}/images/${req.body.profile_image}`,
-            req.body.token = "",
-            req.body.id = userID
-        ];
-        console.log(req.body);
-
+        const mysqlCreateTable = `
+            CREATE TABLE IF NOT EXISTS users (
+                username VARCHAR(200),
+                email VARCHAR(200),
+                password VARCHAR(200),
+                profile_image VARCHAR(300),
+                token VARCHAR(300),
+                id INT PRIMARY KEY AUTO_INCREMENT
+            )`;
         db.query(mysqlCreateTable);
+
+        const userID = Math.floor(Math.random() * 1000000000);
+        const salt = bcrypt.genSaltSync(10);
+
+        const values = [
+            req.body.username.trim(),
+            req.body.email.trim(),
+            bcrypt.hashSync(req.body.password.trim(), salt),
+            req.body.profile_image ? `${req.protocol}://${req.get("host")}/images/${req.body.profile_image}` : null,
+            null, // token will be set after creation
+            userID
+        ];
+
+        const mysqlQuery = "INSERT INTO users (username, email, password, profile_image, token, id) VALUES (?)";
+
         db.query(mysqlQuery, [values], (err, data) => {
-            if (err) return res.status(500).json("Error occured on 👉👉register mysqlQuery" + " | " + err)
-            GenerateToken(userID, res);
-            res.json({ registered: `You are successfully registered!` });
+            if (err) return res.status(500).json("Register query error | " + err);
+
+            // Generate JWT token and set cookie
+            const token = GenerateToken(userID, res);
+
+            // Update user row with the token in DB
+            db.query("UPDATE users SET token = ? WHERE id = ?", [token, userID]);
+
+            res.json({ registered: "You are successfully registered!", token });
         });
 
     } catch (error) {
-        res.status(500).json("Error occured on 👉👉register request" + " | " + error);
-        console.log("Error occured on 👉👉register request" + " | " + error);
+        console.log("Register error:", error);
+        res.status(500).json("Register request error | " + error);
     }
 };
 
