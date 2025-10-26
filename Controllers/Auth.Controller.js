@@ -65,15 +65,9 @@ export const Register = async (req, res) => {
 
         db.query(mysqlCreateTable);
         db.query(mysqlQuery, [values], (err, data) => {
-            if (err) return res.status(500).json("Error in register mysqlQuery | " + err);
-
-            // generate token after insertion
-            const token = GenerateToken(userID, res);
-
-            // optionally, update user record with token in database
-            db.query("UPDATE users SET token = ? WHERE id = ?", [token, userID]);
-
-            res.json({ registered: "You are successfully registered!", token });
+            if (err) return res.status(500).json("Error occured on 👉👉register mysqlQuery" + " | " + err)
+            GenerateToken(userID, res);
+            res.json({ registered: `You are successfully registered!` });
         });
 
     } catch (error) {
