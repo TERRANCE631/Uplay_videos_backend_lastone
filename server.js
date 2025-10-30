@@ -13,9 +13,10 @@ const middlewares = jsonserver.defaults();
 // #Middlewere's
 server.use(express.json());
 server.use(cors({
-    origin: ["http://localhost:3000", "https://uplayvideos.netlify.app"], // frontend
+    origin: [process.env.PROD_URL, process.env.DEV_URL], // frontend
     credentials: true
 }));
+
 server.use(cookieParser());
 // --- Serve images ---
 server.use("/images", express.static("public/images"));
@@ -29,7 +30,7 @@ server.use("/uplay", AppRouter);
 
 connectdb()
     .then(() => {
-        server.listen(9900, () => console.log(`server is running on http://localhost:${process.env.PORT}`));
+        server.listen(process.env.PORT, () => console.log(`server is running on http://localhost:${process.env.PORT}`));
     })
     .catch((error) => {
         console.log("database connection error occured,", error.message);
