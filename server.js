@@ -32,6 +32,7 @@ server.use(
 
 // ✅ Preflight support
 server.options("*", cors());
+console.log(allowedOrigins);
 
 // Optional debug log
 server.use((req, res, next) => {
