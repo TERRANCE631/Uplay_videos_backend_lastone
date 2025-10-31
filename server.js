@@ -14,7 +14,13 @@ const middlewares = jsonserver.defaults();
 server.use(express.json());
 
 // ✅ Improved CORS setup
-const allowedOrigins = [process.env.PROD_URL, process.env.DEV_URL];
+const allowedOrigins = [
+    process.env.PROD_URL_1,
+    process.env.DEV_URL,
+    process.env.PROD_URL_2,
+    process.env.PROD_URL_3
+];
+
 server.use(
     cors({
         origin: function (origin, callback) {
